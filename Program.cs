@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.Text;
 
 namespace CSLox
 {
@@ -10,6 +9,8 @@ namespace CSLox
         static void RunFile(string path)
         {
             byte[] bytes = File.ReadAllBytes(path);
+            var contents = Encoding.Default.GetString(bytes);
+            Run(contents);
 
             if (_hadError)
                 Environment.Exit(65);
@@ -59,7 +60,7 @@ namespace CSLox
                     Console.WriteLine("Usage: cslox [script]");
                     return;
                 case 1:
-                    Console.WriteLine(args[0]);
+                    RunFile(args[0]);
                     break;
                 default:
                     RunPrompt();
