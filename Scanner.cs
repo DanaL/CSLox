@@ -1,16 +1,14 @@
-using System.Data.Common;
-
 namespace CSLox;
 
 public class Scanner
 {
-    private string source;
-    private List<Token> tokens;
-    private int start;
-    private int current;
-    private int line = 1;
+    private readonly string _source;
+    private readonly List<Token> _tokens = new();
+    private int _start;
+    private int _current;
+    private int _line = 1;
    
-    static Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
+    static Dictionary<string, TokenType> _keywords = new()
     {
         { "and", TokenType.AND },
         { "class", TokenType.CLASS },
@@ -32,19 +30,18 @@ public class Scanner
     
     public Scanner(string source)
     {
-        this.source = source;
-        tokens = new List<Token>();
+        _source = source;
     }
 
     public List<Token> ScanTokens()
     {
         while (!IsAtEnd())
         {
-            start = current;
+            _start = _current;
             ScanToken();
         }
 
-        return tokens;
+        return _tokens;
     }
 
     private void ScanToken()
@@ -111,7 +108,7 @@ public class Scanner
             case '\t':
                 break;
             case '\n':
-                line++;
+                _line++;
                 break;
             case '"':
                 String();
@@ -122,7 +119,7 @@ public class Scanner
                 else if (IsAlpha(c))
                     Identifier();
                 else
-                    Lox.Error(line, $"Unexpected character: {c}.");
+                    Lox.Error(_line, $"Unexpected character: {c}.");
 
                 break;
         }
@@ -133,8 +130,8 @@ public class Scanner
         while (IsAlphaNumeric(Peek()))
             Advance();
 
-        string text = source.Substring(start, current - start - 1);
-        TokenType type = keywords.ContainsKey(text) ? keywords[text] : TokenType.IDENTIFIER;
+        string text = _source.Substring(_start, _current - _start - 1);
+        TokenType type = _keywords.ContainsKey(text) ? _keywords[text] : TokenType.IDENTIFIER;
         AddToken(type);
     }
     
@@ -168,7 +165,7 @@ public class Scanner
             ConsumeDigits();
         }
 
-        AddToken(TokenType.NUMBER, double.Parse(source.Substring(start, current - start)));
+        AddToken(TokenType.NUMBER, double.Parse(_source.Substring(_start, _current - _start)));
     }
     
     private void String()
@@ -176,59 +173,59 @@ public class Scanner
         while (Peek() != '"' && !IsAtEnd())
         {
             if (Peek() == '\n')
-                line++;
+                _line++;
             Advance();
         }
 
         if (IsAtEnd())
         {
-            Lox.Error(line, "Unterminated string.");
+            Lox.Error(_line, "Unterminated string.");
             return;
         }
         
         // skip closing "
         Advance();
 
-        string value = source.Substring(start + 1, current - start - 2);
+        string? value = _source.Substring(_start + 1, _current - _start - 2);
         AddToken(TokenType.STRING, value);
     }
 
     private char Peeek()
     {
-        if (current + 1 >= source.Length)
+        if (_current + 1 >= _source.Length)
             return '\0';
 
-        return source[current + 1];
+        return _source[_current + 1];
     }
     private char Peek()
     {
-        return IsAtEnd() ? '\0' : source[current];
+        return IsAtEnd() ? '\0' : _source[_current];
     }
     
     private bool Match(char expected)
     {
         if (IsAtEnd())
             return false;
-        if (source[current] != expected)
+        if (_source[_current] != expected)
             return false;
 
-        current++;
+        _current++;
         return true;
     }
     
     private char Advance()
     {
-        return source[current++];
+        return _source[_current++];
     }
 
-    private void AddToken(TokenType type, object literal = null)
+    private void AddToken(TokenType type, object? literal = null)
     {
-        string text = source.Substring(start, current - start);
-        tokens.Add(new Token(type, text, literal, line));
+        string text = _source.Substring(_start, _current - _start);
+        _tokens.Add(new(type, text, literal, _line));
     }
     
     private bool IsAtEnd()
     {
-        return current >= source.Length;
+        return _current >= _source.Length;
     }
 }

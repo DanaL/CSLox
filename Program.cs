@@ -5,13 +5,13 @@ namespace CSLox
 {
     class Lox
     {
-        static bool hadError = false;
+        static bool _hadError = false;
 
         static void RunFile(string path)
         {
             byte[] bytes = File.ReadAllBytes(path);
 
-            if (hadError)
+            if (_hadError)
                 Environment.Exit(65);
         }
 
@@ -24,7 +24,7 @@ namespace CSLox
             foreach (var token in tokens)
             {
                 Console.WriteLine(token);
-                hadError = false;
+                _hadError = false;
             }
         }
 
@@ -36,7 +36,7 @@ namespace CSLox
         static void Report(int line, string where, string message)
         {
             Console.WriteLine($"[line {line}] Error {where}: {message}");
-            hadError = true;
+            _hadError = true;
         }
 
         static void RunPrompt()
