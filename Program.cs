@@ -1,71 +1,68 @@
 ﻿using System.Text;
 
-namespace CSLox
+namespace CSLox;
+
+class Lox
 {
-    class Lox
+    static bool hadError = false;
+
+    static void RunFile(string path)
     {
-        static bool _hadError = false;
+        byte[] bytes = File.ReadAllBytes(path);
 
-        static void RunFile(string path)
+        if (hadError)
+            Environment.Exit(65);
+    }
+
+    static void Run(string source)
+    {
+        Console.WriteLine(source);
+        var scanner = new Scanner(source);
+        var tokens = scanner.ScanTokens();
+
+        foreach (var token in tokens)
         {
-            byte[] bytes = File.ReadAllBytes(path);
-            var contents = Encoding.Default.GetString(bytes);
-            Run(contents);
-
-            if (_hadError)
-                Environment.Exit(65);
+          Console.WriteLine(token);
+          hadError = false;
         }
+    }
 
-        static void Run(string source)
+    public static void Error(int line, string message)
+    {
+        Report(line, "", message);
+    }
+
+    static void Report(int line, string where, string message)
+    {
+        Console.WriteLine($"[line {line}] Error {where}: {message}");
+        hadError = true;
+    }
+
+    static void RunPrompt()
+    {
+        for (;;)
         {
-            Console.WriteLine(source);
-            var scanner = new Scanner(source);
-            var tokens = scanner.ScanTokens();
-
-            foreach (var token in tokens)
-            {
-                Console.WriteLine(token);
-                _hadError = false;
-            }
+            Console.Write("> ");
+            var line = Console.ReadLine();
+            if (line == null)
+                break;
+            Run(line);
         }
+    }
 
-        public static void Error(int line, string message)
+    static void Main(string[] args)
+    {
+        switch (args.Length)
         {
-            Report(line, "", message);
-        }
-
-        static void Report(int line, string where, string message)
-        {
-            Console.WriteLine($"[line {line}] Error {where}: {message}");
-            _hadError = true;
-        }
-
-        static void RunPrompt()
-        {
-            for (;;)
-            {
-                Console.Write("> ");
-                var line = Console.ReadLine();
-                if (line == null)
-                    break;
-                Run(line);
-            }
-        }
-
-        static void Main(string[] args)
-        {
-            switch (args.Length)
-            {
-                case > 1:
-                    Console.WriteLine("Usage: cslox [script]");
-                    return;
-                case 1:
-                    RunFile(args[0]);
-                    break;
-                default:
-                    RunPrompt();
-                    break;
-            }
+          case > 1:
+              Console.WriteLine("Usage: cslox [script]");
+              return;
+          case 1:
+              Console.WriteLine(args[0]);
+              break;
+          default:
+              RunPrompt();
+              break;
         }
     }
 }
