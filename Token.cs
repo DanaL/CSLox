@@ -35,8 +35,5 @@ public class Token
         Line = line;
     }
 
-    public override string ToString()
-    {
-        return $"{Type} {Lexeme} {Literal}";
-    }
+    public override string ToString() => $"{Type} {Lexeme} {Literal}";
 }
