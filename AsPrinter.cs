@@ -3,7 +3,7 @@ using System.Text;
 
 namespace CSLox;
 
-class AsPrinter : IVisitor<string>
+class AstPrinter : IVisitor<string>
 {
   public string Print(Expr expr)
   {
@@ -31,7 +31,7 @@ class AsPrinter : IVisitor<string>
     return Parenthesize(expr.Op.Lexeme, expr.Left, expr.Right);
   }
 
-  public string VisitGroupingExp(Grouping expr)
+  public string VisitGroupingExpr(Grouping expr)
   {
     return Parenthesize("group", expr.Expression);
   }
@@ -44,10 +44,5 @@ class AsPrinter : IVisitor<string>
   public string VisitUnaryExpr(Unary expr)
   {
     return Parenthesize(expr.Op.Lexeme, expr.Right);
-  }
-
-  public string VisitGroupingExpr(Grouping expr)
-  {
-    throw new NotImplementedException();
   }
 }

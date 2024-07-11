@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CSLox;
 
@@ -52,17 +53,26 @@ class Lox
 
     static void Main(string[] args)
     {
-        switch (args.Length)
-        {
-          case > 1:
-              Console.WriteLine("Usage: cslox [script]");
-              return;
-          case 1:
-              Console.WriteLine(args[0]);
-              break;
-          default:
-              RunPrompt();
-              break;
-        }
+      Expr expression = new Binary(
+        new Unary(new Token(TokenType.MINUS, "-", null, 1),
+          new Literal(123)),
+        new Token(TokenType.STAR, "*", null, 1),
+        new Grouping(new Literal(45.67))
+      );
+
+      Console.WriteLine(new AstPrinter().Print(expression));
+      
+        // switch (args.Length)
+        // {
+        //   case > 1:
+        //       Console.WriteLine("Usage: cslox [script]");
+        //       return;
+        //   case 1:
+        //       Console.WriteLine(args[0]);
+        //       break;
+        //   default:
+        //       RunPrompt();
+        //       break;
+        // }
     }
 }
