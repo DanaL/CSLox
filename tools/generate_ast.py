@@ -5,6 +5,16 @@
 
 import sys
 
+def define_visitor(file, base_name, types):
+    file.write("public interface IVisitor\n{\n")
+
+    for type in types:
+        type_name = type.split(":")[0].strip()
+        file.write("\tpublic T Visit" + type_name + base_name + "<T>(" 
+            + type_name + " " + base_name.lower() + ");\n")
+
+    file.write("}")
+
 def define_type(file, base_name, class_name, fields):
     fields_list = fields.split(", ")
 
@@ -12,7 +22,7 @@ def define_type(file, base_name, class_name, fields):
 
     # write the class fields
     for field in fields_list:
-        file.write("\t" + field.title() + ";\n")
+        file.write("\tpublic " + field.title() + ";\n")
     file.write("\n")
 
     # write the constructor
@@ -20,14 +30,26 @@ def define_type(file, base_name, class_name, fields):
     for field in fields_list:
         name = field.split(" ")[1]
         file.write("\t\t" + name.capitalize() + " = " + name + ";\n")
-    file.write("\t}\n}\n\n")
+    file.write("\t}\n\n") 
+
+    # Visitor pattern
+    file.write("\tpublic override T Accept<T>(IVisitor visitor)\n\t{\n")
+    file.write("\t\treturn visitor.Visit" + class_name + base_name + "<T>(this);");
+    file.write("\n\t}\n")
+
+    file.write("\n}\n\n")
 
 def define_ast(output_dir, base_name, types):
     path = output_dir + "/" + base_name + ".cs"
     with open(path, "w") as file:
         file.write("namespace CSLox;\n\n")
-        file.write("public abstract class " + base_name + " {")
-        file.write("}\n\n")
+        
+        define_visitor(file, base_name, types)
+        file.write("\n\n")
+
+        file.write("public abstract class " + base_name + " \n{\n")
+        file.write("\tpublic abstract T Accept<T>(IVisitor visitor);\n")
+        file.write("\n}\n\n")
 
         for type in types:
             class_name = type.split(":")[0].strip()
