@@ -1,16 +1,16 @@
 namespace CSLox;
 
-public interface IVisitor
+public interface IVisitor<T>
 {
-	public T VisitBinaryExpr<T>(Binary expr);
-	public T VisitGroupingExpr<T>(Grouping expr);
-	public T VisitLiteralExpr<T>(Literal expr);
-	public T VisitUnaryExpr<T>(Unary expr);
+	public T VisitBinaryExpr(Binary expr);
+	public T VisitGroupingExpr(Grouping expr);
+	public T VisitLiteralExpr(Literal expr);
+	public T VisitUnaryExpr(Unary expr);
 }
 
 public abstract class Expr 
 {
-	public abstract T Accept<T>(IVisitor visitor);
+	public abstract T Accept<T>(IVisitor<T> visitor);
 
 }
 
@@ -27,9 +27,9 @@ public class Binary : Expr
 		Right = right;
 	}
 
-	public override T Accept<T>(IVisitor visitor)
+	public override T Accept<T>(IVisitor<T> visitor)
 	{
-		return visitor.VisitBinaryExpr<T>(this);
+		return visitor.VisitBinaryExpr(this);
 	}
 
 }
@@ -43,9 +43,9 @@ public class Grouping : Expr
 		Expression = expression;
 	}
 
-	public override T Accept<T>(IVisitor visitor)
+	public override T Accept<T>(IVisitor<T> visitor)
 	{
-		return visitor.VisitGroupingExpr<T>(this);
+		return visitor.VisitGroupingExpr(this);
 	}
 
 }
@@ -59,9 +59,9 @@ public class Literal : Expr
 		Value = value;
 	}
 
-	public override T Accept<T>(IVisitor visitor)
+	public override T Accept<T>(IVisitor<T> visitor)
 	{
-		return visitor.VisitLiteralExpr<T>(this);
+		return visitor.VisitLiteralExpr(this);
 	}
 
 }
@@ -77,9 +77,9 @@ public class Unary : Expr
 		Right = right;
 	}
 
-	public override T Accept<T>(IVisitor visitor)
+	public override T Accept<T>(IVisitor<T> visitor)
 	{
-		return visitor.VisitUnaryExpr<T>(this);
+		return visitor.VisitUnaryExpr(this);
 	}
 
 }
