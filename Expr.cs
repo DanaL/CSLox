@@ -11,7 +11,6 @@ public interface IVisitor<T>
 public abstract class Expr 
 {
 	public abstract T Accept<T>(IVisitor<T> visitor);
-
 }
 
 public class Binary : Expr
@@ -31,7 +30,6 @@ public class Binary : Expr
 	{
 		return visitor.VisitBinaryExpr(this);
 	}
-
 }
 
 public class Grouping : Expr
@@ -47,7 +45,6 @@ public class Grouping : Expr
 	{
 		return visitor.VisitGroupingExpr(this);
 	}
-
 }
 
 public class Literal : Expr
@@ -63,7 +60,6 @@ public class Literal : Expr
 	{
 		return visitor.VisitLiteralExpr(this);
 	}
-
 }
 
 public class Unary : Expr
@@ -81,6 +77,5 @@ public class Unary : Expr
 	{
 		return visitor.VisitUnaryExpr(this);
 	}
-
 }
 

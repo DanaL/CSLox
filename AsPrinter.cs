@@ -14,14 +14,14 @@ class AstPrinter : IVisitor<string>
   {
     var sb = new StringBuilder();
 
-    sb.Append("(");
+    sb.Append('(');
     sb.Append(name);
     foreach (var expr in args)
     {
-      sb.Append(" ");
+      sb.Append(' ');
       sb.Append(expr.Accept<string>(this));
     }
-    sb.Append(")");
+    sb.Append(')');
 
     return sb.ToString();
   }

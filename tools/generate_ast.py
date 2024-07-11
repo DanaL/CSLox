@@ -6,11 +6,11 @@
 import sys
 
 def define_visitor(file, base_name, types):
-    file.write("public interface IVisitor\n{\n")
+    file.write("public interface IVisitor<T>\n{\n")
 
     for type in types:
         type_name = type.split(":")[0].strip()
-        file.write("\tpublic T Visit" + type_name + base_name + "<T>(" 
+        file.write("\tpublic T Visit" + type_name + base_name + "(" 
             + type_name + " " + base_name.lower() + ");\n")
 
     file.write("}")
@@ -33,9 +33,9 @@ def define_type(file, base_name, class_name, fields):
     file.write("\t}\n\n") 
 
     # Visitor pattern
-    file.write("\tpublic override T Accept<T>(IVisitor visitor)\n\t{\n")
-    file.write("\t\treturn visitor.Visit" + class_name + base_name + "<T>(this);");
-    file.write("\n\t}\n")
+    file.write("\tpublic override T Accept<T>(IVisitor<T> visitor)\n\t{\n")
+    file.write("\t\treturn visitor.Visit" + class_name + base_name + "(this);");
+    file.write("\n\t}")
 
     file.write("\n}\n\n")
 
@@ -48,8 +48,8 @@ def define_ast(output_dir, base_name, types):
         file.write("\n\n")
 
         file.write("public abstract class " + base_name + " \n{\n")
-        file.write("\tpublic abstract T Accept<T>(IVisitor visitor);\n")
-        file.write("\n}\n\n")
+        file.write("\tpublic abstract T Accept<T>(IVisitor<T> visitor);\n")
+        file.write("}\n\n")
 
         for type in types:
             class_name = type.split(":")[0].strip()
