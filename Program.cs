@@ -61,7 +61,19 @@ class Lox
       );
 
       Console.WriteLine(new AstPrinter().Print(expression));
-      
+      Console.WriteLine(new AstPrinterRPN().Print(expression));
+
+      Expr exp2 = new Binary(
+        new Grouping(
+          new Binary(new Literal(1), new Token(TokenType.STAR, "+", null, 1), new Literal(2))
+        ),
+        new Token(TokenType.STAR, "*", null, 1),
+        new Grouping(
+          new Binary(new Literal(4), new Token(TokenType.STAR, "-", null, 1), new Literal(3))
+        )
+      );
+      Console.WriteLine(new AstPrinter().Print(exp2));
+      Console.WriteLine(new AstPrinterRPN().Print(exp2));
         // switch (args.Length)
         // {
         //   case > 1:

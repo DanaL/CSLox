@@ -10,7 +10,7 @@ class AstPrinter : IVisitor<string>
     return expr.Accept<string>(this);
   }
 
-  public string Parenthesize(string name, params Expr[] args)
+  string Parenthesize(string name, params Expr[] args)
   {
     var sb = new StringBuilder();
 
@@ -26,23 +26,26 @@ class AstPrinter : IVisitor<string>
     return sb.ToString();
   }
 
+  public string VisitBinaryExpr(Binary expr) => Parenthesize(expr.Op.Lexeme, expr.Left, expr.Right);
+  public string VisitGroupingExpr(Grouping expr) => Parenthesize("group", expr.Expression);
+  public string VisitLiteralExpr(Literal expr) => expr.Value.ToString() ?? "";
+  public string VisitUnaryExpr(Unary expr) => Parenthesize(expr.Op.Lexeme, expr.Right);
+}
+
+class AstPrinterRPN : IVisitor<string>
+{
+  public string Print(Expr expr)
+  {
+    return expr.Accept<string>(this);
+  }
+
   public string VisitBinaryExpr(Binary expr)
   {
-    return Parenthesize(expr.Op.Lexeme, expr.Left, expr.Right);
+    return expr.Left.Accept<string>(this) + " " +
+            expr.Right.Accept<string>(this) + " " + expr.Op.Lexeme;
   }
 
-  public string VisitGroupingExpr(Grouping expr)
-  {
-    return Parenthesize("group", expr.Expression);
-  }
-
-  public string VisitLiteralExpr(Literal expr)
-  {
-    return expr.Value.ToString() ?? "";
-  }
-
-  public string VisitUnaryExpr(Unary expr)
-  {
-    return Parenthesize(expr.Op.Lexeme, expr.Right);
-  }
+  public string VisitGroupingExpr(Grouping expr) => expr.Expression.Accept<string>(this);
+  public string VisitLiteralExpr(Literal expr) => expr.Value.ToString() ?? "";
+  public string VisitUnaryExpr(Unary expr) =>  $"{expr.Right.Accept<string>(this)} {expr.Op.Lexeme}";
 }
