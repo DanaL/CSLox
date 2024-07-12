@@ -5,10 +5,7 @@ namespace CSLox;
 
 class AstPrinter : IVisitor<string>
 {
-  public string Print(Expr expr)
-  {
-    return expr.Accept<string>(this);
-  }
+  public string Print(Expr expr) => expr.Accept<string>(this);
 
   string Parenthesize(string name, params Expr[] args)
   {
@@ -34,10 +31,7 @@ class AstPrinter : IVisitor<string>
 
 class AstPrinterRPN : IVisitor<string>
 {
-  public string Print(Expr expr)
-  {
-    return expr.Accept<string>(this);
-  }
+  public string Print(Expr expr) => expr.Accept<string>(this);
 
   public string VisitBinaryExpr(Binary expr)
   {
