@@ -1,9 +1,9 @@
 namespace CSLox;
 
-public class Scanner
+public class Scanner(string src)
 {
-    private readonly string source;
-    private readonly List<Token> tokens = new();
+    private readonly string source = src;
+    private readonly List<Token> tokens = [];
     private int start;
     private int current;
     private int line = 1;
@@ -28,11 +28,6 @@ public class Scanner
         { "while", TokenType.WHILE }
     };
     
-    public Scanner(string src)
-    {
-        source = src;
-    }
-
     public List<Token> ScanTokens()
     {
         while (!IsAtEnd())
@@ -135,9 +130,9 @@ public class Scanner
         AddToken(type);
     }
     
-    private bool IsAlpha(char c) => char.IsLetter(c) || c == '_';
-    private bool IsAlphaNumeric(char c) => IsAlpha(c) || IsDigit(c);    
-    private bool IsDigit(char c) => c >= '0' && c <= '9';
+    private static bool IsAlpha(char c) => char.IsLetter(c) || c == '_';
+    private static bool IsAlphaNumeric(char c) => IsAlpha(c) || IsDigit(c);    
+    private static bool IsDigit(char c) => c >= '0' && c <= '9';
 
     private void ConsumeDigits()
     {
