@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace CSLox;
 
 public class Scanner(string src)
@@ -125,8 +127,8 @@ public class Scanner(string src)
     while (IsAlphaNumeric(Peek()))
       Advance();
 
-    string text = source.Substring(start, current - start - 1);
-    TokenType type = keywords.ContainsKey(text) ? keywords[text] : TokenType.IDENTIFIER;
+    string text = source[start..current];
+    TokenType type = keywords.TryGetValue(text, out TokenType value) ? value : TokenType.IDENTIFIER;
     AddToken(type);
   }
 
@@ -136,8 +138,14 @@ public class Scanner(string src)
 
   private void ConsumeDigits()
   {
-    while (IsDigit(Peek()))
-      Advance();
+    while (true)
+    {
+      char ch = Peek();
+      if (IsDigit(ch) || (ch == '_' && IsDigit(Peeek())))
+        Advance();
+      else
+        break;
+    }
   }
 
   private void Number()
@@ -156,7 +164,14 @@ public class Scanner(string src)
       ConsumeDigits();
     }
 
-    AddToken(TokenType.NUMBER, double.Parse(source[start..current]));
+    var sb = new StringBuilder();
+    for (int j = start; j < current; j++)
+    {
+      if (source[j] != '_')
+        sb.Append(source[j]);
+    }
+    
+    AddToken(TokenType.NUMBER, double.Parse(sb.ToString()));
   }
 
   private void String()
