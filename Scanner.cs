@@ -200,7 +200,7 @@ public class Scanner(string src)
 
     private void AddToken(TokenType type, object? literal = null)
     {
-        string text = source.Substring(start, current - start);
+        string text = source[start..current];
         tokens.Add(new(type, text, literal, line));
     }
     

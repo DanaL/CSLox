@@ -1,7 +1,4 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
-
-namespace CSLox;
+﻿namespace CSLox;
 
 class Lox
 {
@@ -19,13 +16,27 @@ class Lox
     {
         Console.WriteLine(source);
         var scanner = new Scanner(source);
+        
         var tokens = scanner.ScanTokens();
+        tokens.Add(new Token(TokenType.EOF, "", null, 0));
 
-        foreach (var token in tokens)
+        var parser = new Parser(tokens);
+        Expr? expression = parser.Parse();
+
+        if (hadError || expression is null) 
         {
-          Console.WriteLine(token);
-          hadError = false;
+          return;
         }
+
+        Console.WriteLine(new AstPrinter().Print(expression));
+    }
+
+    public static void Error(Token token, string message)
+    {
+      if (token.Type == TokenType.EOF)
+        Report(token.Line, "at end", message);
+      else
+        Report(token.Line, $"at '{token.Lexeme}'", message);
     }
 
     public static void Error(int line, string message)
@@ -53,38 +64,17 @@ class Lox
 
     static void Main(string[] args)
     {
-      Expr expression = new Binary(
-        new Unary(new Token(TokenType.MINUS, "-", null, 1),
-          new Literal(123)),
-        new Token(TokenType.STAR, "*", null, 1),
-        new Grouping(new Literal(45.67))
-      );
-
-      Console.WriteLine(new AstPrinter().Print(expression));
-      Console.WriteLine(new AstPrinterRPN().Print(expression));
-
-      Expr exp2 = new Binary(
-        new Grouping(
-          new Binary(new Literal(1), new Token(TokenType.STAR, "+", null, 1), new Literal(2))
-        ),
-        new Token(TokenType.STAR, "*", null, 1),
-        new Grouping(
-          new Binary(new Literal(4), new Token(TokenType.STAR, "-", null, 1), new Literal(3))
-        )
-      );
-      Console.WriteLine(new AstPrinter().Print(exp2));
-      Console.WriteLine(new AstPrinterRPN().Print(exp2));
-        // switch (args.Length)
-        // {
-        //   case > 1:
-        //       Console.WriteLine("Usage: cslox [script]");
-        //       return;
-        //   case 1:
-        //       Console.WriteLine(args[0]);
-        //       break;
-        //   default:
-        //       RunPrompt();
-        //       break;
-        // }
+      switch (args.Length)
+      {
+        case > 1:
+            Console.WriteLine("Usage: cslox [script]");
+            return;
+        case 1:
+            Console.WriteLine(args[0]);
+            break;
+        default:
+            RunPrompt();
+            break;
+      }
     }
 }

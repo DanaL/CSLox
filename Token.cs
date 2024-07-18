@@ -20,20 +20,12 @@ public enum TokenType
     EOF 
 }
 
-public class Token
+public class Token(TokenType type, string lexeme, object? literal, int line)
 {
-    public TokenType Type { get; set; }
-    public string Lexeme { get; set; }
-    public object? Literal { get; set; }
-    public int Line { get; set; }
+  public TokenType Type { get; set; } = type;
+  public string Lexeme { get; set; } = lexeme;
+  public object? Literal { get; set; } = literal;
+  public int Line { get; set; } = line;
 
-    public Token(TokenType type, string lexeme, object? literal, int line)
-    {
-        Type = type;
-        Lexeme = lexeme;
-        Literal = literal;
-        Line = line;
-    }
-
-    public override string ToString() => $"{Type} {Lexeme} {Literal}";
+  public override string ToString() => $"{Type} {Lexeme} {Literal}";
 }
