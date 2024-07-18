@@ -102,7 +102,22 @@ class Parser(List<Token> tokens)
     throw Error(Peek(), message);
   }
 
-  Expr Expression() => Equality();
+  Expr Expression() => Ternary();
+
+  Expr Ternary()
+  {
+    Expr expr = Equality();
+
+    while (Match(TokenType.QUESTION_MARK))
+    {
+      Expr pass = Expression();
+      Consume(TokenType.COLON, "Expected ':' in ternary expression.");
+      Expr fail = Expression();
+      expr = new Ternary(expr, pass, fail);
+    }
+
+    return expr;
+  }
 
   Expr Equality()
   {

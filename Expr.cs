@@ -6,6 +6,7 @@ public interface IVisitor<T>
 	public T VisitGroupingExpr(Grouping expr);
 	public T VisitLiteralExpr(Literal expr);
 	public T VisitUnaryExpr(Unary expr);
+	public T VisitTernaryExpr(Ternary expr);
 }
 
 public abstract class Expr 
@@ -13,20 +14,25 @@ public abstract class Expr
 	public abstract T Accept<T>(IVisitor<T> visitor);
 }
 
-public class Binary : Expr
+public class Ternary(Expr test, Expr pass, Expr fail) : Expr
 {
-	public Expr Left;
-	public Token Op;
-	public Expr Right;
+	public Expr Test { get; set; } = test;
+	public Expr Pass { get; set; } = pass;
+	public Expr Fail { get; set; } = fail;
 
-	public Binary(Expr left, Token op, Expr right)
-	{
-		Left = left;
-		Op = op;
-		Right = right;
-	}
+  public override T Accept<T>(IVisitor<T> visitor)
+  {
+    return visitor.VisitTernaryExpr(this);
+  }
+}
 
-	public override T Accept<T>(IVisitor<T> visitor)
+public class Binary(Expr left, Token op, Expr right) : Expr
+{
+	public Expr Left = left;
+	public Token Op = op;
+	public Expr Right = right;
+
+  public override T Accept<T>(IVisitor<T> visitor)
 	{
 		return visitor.VisitBinaryExpr(this);
 	}
@@ -47,16 +53,11 @@ public class Grouping : Expr
 	}
 }
 
-public class Literal : Expr
+public class Literal(object? value) : Expr
 {
-	public Object Value;
+	public object? Value = value;
 
-	public Literal(Object value)
-	{
-		Value = value;
-	}
-
-	public override T Accept<T>(IVisitor<T> visitor)
+  public override T Accept<T>(IVisitor<T> visitor)
 	{
 		return visitor.VisitLiteralExpr(this);
 	}

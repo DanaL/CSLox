@@ -27,6 +27,7 @@ class AstPrinter : IVisitor<string>
   public string VisitGroupingExpr(Grouping expr) => Parenthesize("group", expr.Expression);
   public string VisitLiteralExpr(Literal expr) => expr.Value.ToString() ?? "";
   public string VisitUnaryExpr(Unary expr) => Parenthesize(expr.Op.Lexeme, expr.Right);
+  public string VisitTernaryExpr(Ternary expr) => Parenthesize("tern", expr.Test, expr.Pass, expr.Fail);
 }
 
 class AstPrinterRPN : IVisitor<string>
@@ -39,6 +40,7 @@ class AstPrinterRPN : IVisitor<string>
             expr.Right.Accept<string>(this) + " " + expr.Op.Lexeme;
   }
 
+  public string VisitTernaryExpr(Ternary expr) => $"{expr.Pass} {expr.Fail} {expr.Test} ?"; 
   public string VisitGroupingExpr(Grouping expr) => expr.Expression.Accept<string>(this);
   public string VisitLiteralExpr(Literal expr) => expr.Value.ToString() ?? "";
   public string VisitUnaryExpr(Unary expr) =>  $"{expr.Right.Accept<string>(this)} {expr.Op.Lexeme}";
