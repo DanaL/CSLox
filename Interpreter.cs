@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace CSLox;
 
 class Interpreter : IVisitor<object?>
@@ -68,7 +66,18 @@ class Interpreter : IVisitor<object?>
 
   public object? VisitTernaryExpr(Ternary expr)
   {
-    throw new NotImplementedException();
+    object? result = Evaluate(expr.Test);
+    
+    if (result is bool b)
+    {
+      return b ? Evaluate(expr.Pass) : Evaluate(expr.Fail);
+    }
+    else
+    {
+      // I'll need to log a runtime error here
+    }
+
+    return null;
   }
 
   public object? VisitUnaryExpr(Unary expr)
