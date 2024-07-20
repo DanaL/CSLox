@@ -4,6 +4,22 @@ class Interpreter : IVisitor<object?>
 {
   object? Evaluate(Expr expr) => expr.Accept(this);
   
+  static string Stringify(object? obj)
+  {
+    if (obj is null)
+      return "nil";
+
+    if (obj is double)
+    {
+      string txt = obj.ToString();
+      if (txt.EndsWith(".0"))
+        txt = txt[..^2];
+      return txt;
+    }
+
+    return obj.ToString();
+  }
+
   static bool IsEqual(object? a, object? b)
   {
     if (a is null && b is null)
@@ -24,6 +40,22 @@ class Interpreter : IVisitor<object?>
     return true;
   }
 
+  static void CheckNumericOperand(Token op, object? operand)
+  {
+    if (operand is double)
+      return;
+
+    throw new RuntimeError(op, "Operand must be a number.");
+  }
+
+  static void CheckNumericOperands(Token op, object? left, object? right)
+  {
+    if (left is double && right is double)
+      return;
+
+    throw new RuntimeError(op, "Operands must be numbers.");
+  }
+  
   public object? VisitBinaryExpr(Binary expr)
   {
     object? left = Evaluate(expr.Left);
@@ -32,10 +64,13 @@ class Interpreter : IVisitor<object?>
     switch (expr.Op.Type)
     {
       case TokenType.MINUS:
+        CheckNumericOperands(expr.Op, left, right);
         return (double)left - (double)right;
       case TokenType.SLASH:
+        CheckNumericOperands(expr.Op, left, right);
         return (double)left / (double)right;
       case TokenType.STAR:
+        CheckNumericOperands(expr.Op, left, right);
         return (double)left * (double)right;
       case TokenType.PLUS:
         if (left is double lval && right is double rval)
@@ -43,14 +78,18 @@ class Interpreter : IVisitor<object?>
 
         if (left is string && right is string)
           return $"{left}{right}";
-        break;
+        throw new RuntimeError(expr.Op, "Operands must be two numbers or two strings.");
       case TokenType.GREATER:
+        CheckNumericOperands(expr.Op, left, right);
         return (double)left > (double)right;
       case TokenType.GREATER_EQUAL:
+        CheckNumericOperands(expr.Op, left, right);
         return (double)left >= (double)right;
       case TokenType.LESS:
+        CheckNumericOperands(expr.Op, left, right);
         return (double)left < (double)right;
       case TokenType.LESS_EQUAL:
+        CheckNumericOperands(expr.Op, left, right);
         return (double)left <= (double)right;
       case TokenType.EQUAL_EQUAL:
         return IsEqual(left, right);
@@ -82,13 +121,31 @@ class Interpreter : IVisitor<object?>
 
   public object? VisitUnaryExpr(Unary expr)
   {
-    object? right = Evaluate(expr.Right);
+    object? right = Evaluate(expr.Right) ?? 
+      throw new RuntimeError(expr.Op, "Expected operand.");
 
-    return expr.Op.Type switch
+    switch (expr.Op.Type)
     {
-      TokenType.MINUS => -(double)right,
-      TokenType.BANG => IsTruthy(right),
-      _ => null
-    };
+      case TokenType.MINUS:
+        CheckNumericOperand(expr.Op, right);
+        return -(double)right;
+      case TokenType.BANG:
+        return IsTruthy(right);
+    }
+
+    return null;
+  }
+
+  public void Interpret(Expr expression)
+  {
+    try
+    {
+      object? result = Evaluate(expression);
+      Console.WriteLine(Stringify(result));
+    }
+    catch (RuntimeError error)
+    {
+      Lox.ReportRuntimeError(error);
+    }
   }
 }

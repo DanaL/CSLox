@@ -2,7 +2,9 @@
 
 class Lox
 {
+  static Interpreter interpreter = new();
   static bool hadError = false;
+  static bool hadRunetimeError = false;
 
   static void RunFile(string path)
   {
@@ -10,13 +12,13 @@ class Lox
 
     if (hadError)
       Environment.Exit(65);
+    if (hadRunetimeError)
+      Environment.Exit(70);
   }
 
   static void Run(string source)
   {
-    Console.WriteLine(source);
     var scanner = new Scanner(source);
-
     var tokens = scanner.ScanTokens();
     tokens.Add(new Token(TokenType.EOF, "", null, 0));
 
@@ -28,7 +30,9 @@ class Lox
       return;
     }
 
-    Console.WriteLine(new AstPrinter().Print(expression));
+    interpreter.Interpret(expression);
+
+    //Console.WriteLine(new AstPrinter().Print(expression));
   }
 
   public static void Error(Token token, string message)
@@ -48,6 +52,13 @@ class Lox
   {
     Console.WriteLine($"[line {line}] Error {where}: {message}");
     hadError = true;
+  }
+
+  public static void ReportRuntimeError(RuntimeError error)
+  {
+    string msg = $"{error.Message}\n[line {error.Token.Line}]";
+    Console.Error.WriteLine(msg);
+    hadRunetimeError = true;
   }
 
   static void RunPrompt()
