@@ -68,7 +68,10 @@ class Interpreter : IVisitor<object?>
         return (double)left - (double)right;
       case TokenType.SLASH:
         CheckNumericOperands(expr.Op, left, right);
-        return (double)left / (double)right;
+        double denominator = (double)right;
+        if (Math.Abs(0.0 - denominator) < 0.0000000000001)
+          throw new RuntimeError(expr.Op, "Division by zero.");
+        return (double)left / denominator;
       case TokenType.STAR:
         CheckNumericOperands(expr.Op, left, right);
         return (double)left * (double)right;
