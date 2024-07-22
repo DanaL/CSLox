@@ -7,21 +7,15 @@ class Parser(List<Token> tokens)
   List<Token> Tokens { get; set ;} = tokens;
   int Current = 0;
 
-  public Expr? Parse()
+  public List<Stmt> Parse()
   {
-    // foreach (var token in Tokens)
-    // {
-    //   Console.WriteLine(token.Type);
-    // }
+    List<Stmt> statements = [];
+    while (!IsAtEnd())
+    {
+      statements.Add(Statement());
+    }
 
-    try
-    {
-      return Expression();
-    }
-    catch (ParserError)
-    {
-      return null;
-    }
+    return statements;
   }
 
   Token Peek() => Tokens[Current];
@@ -32,7 +26,7 @@ class Parser(List<Token> tokens)
   {
     Lox.Error(token, message);
 
-    throw new ParserError();
+    return new ParserError();
   }
 
   // After a moderately serious error is thrown, this method
@@ -100,6 +94,30 @@ class Parser(List<Token> tokens)
       return Advance();
 
     throw Error(Peek(), message);
+  }
+
+  Stmt Statement()
+  {
+    if (Match(TokenType.PRINT))
+      return PrintStatement();
+
+    return ExpressionStatement();
+  }
+
+  Stmt PrintStatement()
+  {
+    Expr value = Expression();
+    Consume(TokenType.SEMICOLON, "Expected ';' after value.");
+
+    return new PrintStmt(value);
+  }
+
+  Stmt ExpressionStatement()
+  {
+    Expr expr = Expression();
+    Consume(TokenType.SEMICOLON, "Expected ';' after value.");
+
+    return new ExprStmt(expr);
   }
 
   Expr Expression() => Ternary();

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace CSLox;
 
-class AstPrinter : IVisitor<string>
+class AstPrinter : IExprVisitor<string>
 {
   public string Print(Expr expr) => expr.Accept<string>(this);
 
@@ -28,20 +28,15 @@ class AstPrinter : IVisitor<string>
   public string VisitLiteralExpr(Literal expr) => expr.Value.ToString() ?? "";
   public string VisitUnaryExpr(Unary expr) => Parenthesize(expr.Op.Lexeme, expr.Right);
   public string VisitTernaryExpr(Ternary expr) => Parenthesize("tern", expr.Test, expr.Pass, expr.Fail);
-}
 
-class AstPrinterRPN : IVisitor<string>
-{
-  public string Print(Expr expr) => expr.Accept<string>(this);
-
-  public string VisitBinaryExpr(Binary expr)
+  public string VisitExprStmt(ExprStmt stmt)
   {
-    return expr.Left.Accept<string>(this) + " " +
-            expr.Right.Accept<string>(this) + " " + expr.Op.Lexeme;
+    throw new NotImplementedException();
   }
 
-  public string VisitTernaryExpr(Ternary expr) => $"{expr.Pass} {expr.Fail} {expr.Test} ?"; 
-  public string VisitGroupingExpr(Grouping expr) => expr.Expression.Accept<string>(this);
-  public string VisitLiteralExpr(Literal expr) => expr.Value.ToString() ?? "";
-  public string VisitUnaryExpr(Unary expr) =>  $"{expr.Right.Accept<string>(this)} {expr.Op.Lexeme}";
+  public string VisitPrintStmt(PrintStmt stmt)
+  {
+    throw new NotImplementedException();
+  }
 }
+

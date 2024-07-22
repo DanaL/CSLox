@@ -23,14 +23,18 @@ class Lox
     tokens.Add(new Token(TokenType.EOF, "", null, 1));
 
     var parser = new Parser(tokens);
-    Expr? expression = parser.Parse();
-
-    if (hadError || expression is null)
+    try
     {
-      return;
-    }
+      var statements = parser.Parse();
 
-    interpreter.Interpret(expression);
+      if (hadError)
+      {
+        return;
+      }
+
+      interpreter.Interpret(statements);
+    }
+    catch (ParserError) { }
 
     //Console.WriteLine(new AstPrinter().Print(expression));
   }

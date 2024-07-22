@@ -69,5 +69,11 @@ types = ["Binary : Expr left, Token op, Expr right",
          "Literal: Object value",
          "Unary: Token op, Expr right"]
 
+stmtTypes = [ 
+  "Expr : Expr expression",
+  "Print      : Expr expression"
+]
+
 define_ast(output_dir, "Expr", types)
+define_ast(output_dir, "Stmt", stmtTypes)
 

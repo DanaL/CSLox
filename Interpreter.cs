@@ -1,6 +1,6 @@
 namespace CSLox;
 
-class Interpreter : IVisitor<object?>
+class Interpreter : IExprVisitor<object?>, IStmtVisitor
 {
   object? Evaluate(Expr expr) => expr.Accept(this);
   
@@ -114,10 +114,8 @@ class Interpreter : IVisitor<object?>
     {
       return b ? Evaluate(expr.Pass) : Evaluate(expr.Fail);
     }
-    else
-    {      
-      throw new RuntimeError(null, "Expected boolean test.");
-    }
+
+    throw new RuntimeError(null, "Expected boolean test.");
   }
 
   public object? VisitUnaryExpr(Unary expr)
@@ -137,26 +135,34 @@ class Interpreter : IVisitor<object?>
     return null;
   }
 
-  public void Interpret(Expr expression)
+  public void VisitExprStmt(ExprStmt stmt)
+  {
+    Evaluate(stmt.Expression);
+  }
+
+  public void VisitPrintStmt(PrintStmt stmt)
+  {
+    object? result = Evaluate(stmt.Expression);
+    Console.WriteLine(Stringify(result));
+  }
+
+  void Execute(Stmt stmt)
+  {
+    stmt.Accept(this);
+  }
+
+  public void Interpret(List<Stmt> statements)
   {
     try
     {
-      object? result = Evaluate(expression);
-      Console.WriteLine(Stringify(result));
+      foreach (var statement in statements)
+      {
+        Execute(statement);
+      }
     }
     catch (RuntimeError error)
     {
       Lox.ReportRuntimeError(error);
     }
-  }
-
-  public object? VisitExprStmt(ExprStmt stmt)
-  {
-    throw new NotImplementedException();
-  }
-
-  public object? VisitPrintStmt(Print stmt)
-  {
-    throw new NotImplementedException();
   }
 }
