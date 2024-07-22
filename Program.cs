@@ -20,7 +20,7 @@ class Lox
   {
     var scanner = new Scanner(source);
     var tokens = scanner.ScanTokens();
-    tokens.Add(new Token(TokenType.EOF, "", null, 0));
+    tokens.Add(new Token(TokenType.EOF, "", null, 1));
 
     var parser = new Parser(tokens);
     Expr? expression = parser.Parse();
@@ -56,14 +56,17 @@ class Lox
 
   public static void ReportRuntimeError(RuntimeError error)
   {
-    string msg = $"{error.Message}\n[line {error.Token.Line}]";
+    string msg = error.Message;
+    if (error.Token is not null)
+      msg += $"\n[line {error.Token.Line}]";
+
     Console.Error.WriteLine(msg);
     hadRunetimeError = true;
   }
 
   static void RunPrompt()
   {
-    for (; ; )
+    while (true)
     {
       hadError = false;
       Console.Write("> ");

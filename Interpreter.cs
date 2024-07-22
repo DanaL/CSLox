@@ -115,11 +115,9 @@ class Interpreter : IVisitor<object?>
       return b ? Evaluate(expr.Pass) : Evaluate(expr.Fail);
     }
     else
-    {
-      // I'll need to log a runtime error here
+    {      
+      throw new RuntimeError(null, "Expected boolean test.");
     }
-
-    return null;
   }
 
   public object? VisitUnaryExpr(Unary expr)
@@ -150,5 +148,15 @@ class Interpreter : IVisitor<object?>
     {
       Lox.ReportRuntimeError(error);
     }
+  }
+
+  public object? VisitExprStmt(ExprStmt stmt)
+  {
+    throw new NotImplementedException();
+  }
+
+  public object? VisitPrintStmt(Print stmt)
+  {
+    throw new NotImplementedException();
   }
 }
