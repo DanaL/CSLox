@@ -8,12 +8,27 @@ class Lox
 
   static void RunFile(string path)
   {
-    byte[] bytes = File.ReadAllBytes(path);
+    string txt = File.ReadAllText(path);
 
     if (hadError)
       Environment.Exit(65);
     if (hadRunetimeError)
       Environment.Exit(70);
+
+    Run(txt);
+  }
+
+  static void RunPrompt()
+  {
+    while (true)
+    {
+      hadError = false;
+      Console.Write("> ");
+      var line = Console.ReadLine();
+      if (line == null)
+        break;
+      Run(line);
+    }
   }
 
   static void Run(string source)
@@ -35,8 +50,6 @@ class Lox
       interpreter.Interpret(statements);
     }
     catch (ParserError) { }
-
-    //Console.WriteLine(new AstPrinter().Print(expression));
   }
 
   public static void Error(Token token, string message)
@@ -68,19 +81,6 @@ class Lox
     hadRunetimeError = true;
   }
 
-  static void RunPrompt()
-  {
-    while (true)
-    {
-      hadError = false;
-      Console.Write("> ");
-      var line = Console.ReadLine();
-      if (line == null)
-        break;
-      Run(line);
-    }
-  }
-
   static void Main(string[] args)
   {
     switch (args.Length)
@@ -89,7 +89,7 @@ class Lox
         Console.WriteLine("Usage: cslox [script]");
         return;
       case 1:
-        Console.WriteLine(args[0]);
+        RunFile(args[0]);
         break;
       default:
         RunPrompt();
