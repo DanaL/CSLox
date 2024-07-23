@@ -38,5 +38,10 @@ class AstPrinter : IExprVisitor<string>
   {
     throw new NotImplementedException();
   }
+
+  public string VisitVariableExpr(Variable expr) 
+  { 
+    throw new NotImplementedException(); 
+  }
 }
 

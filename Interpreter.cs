@@ -2,6 +2,8 @@ namespace CSLox;
 
 class Interpreter : IExprVisitor<object?>, IStmtVisitor
 {
+  LoxEnvironment Environment { get; set; } = new LoxEnvironment();
+
   object? Evaluate(Expr expr) => expr.Accept(this);
   
   static string Stringify(object? obj)
@@ -135,6 +137,8 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
     return null;
   }
 
+  public object? VisitVariableExpr(Variable expr) => Environment.Get(expr.Name);
+
   public void VisitExprStmt(ExprStmt stmt)
   {
     Evaluate(stmt.Expression);
@@ -144,6 +148,17 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
   {
     object? result = Evaluate(stmt.Expression);
     Console.WriteLine(Stringify(result));
+  }
+
+  public void VisitVarStmt(VarStmt stmt)
+  {
+    object? value = null;
+    if (stmt.Initializer != null)
+    {
+      value = Evaluate(stmt.Initializer);
+    }
+
+    Environment.Define(stmt.Name.Lexeme, value);
   }
 
   void Execute(Stmt stmt)

@@ -67,11 +67,13 @@ output_dir = set_output_dir()
 types = ["Binary : Expr left, Token op, Expr right",
          "Grouping: Expr expression",
          "Literal: Object value",
-         "Unary: Token op, Expr right"]
+         "Unary: Token op, Expr right",
+         "Variable: Token name"]
 
 stmtTypes = [ 
   "Expr : Expr expression",
-  "Print      : Expr expression"
+  "Print      : Expr expression",
+  "Var    : Token name, Expr initializer""
 ]
 
 define_ast(output_dir, "Expr", types)

@@ -10,7 +10,7 @@ class Lox
   {
     string txt = File.ReadAllText(path);
 
-    if (hadError)
+    if (hadError)      
       Environment.Exit(65);
     if (hadRunetimeError)
       Environment.Exit(70);
