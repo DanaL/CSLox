@@ -139,6 +139,14 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
 
   public object? VisitVariableExpr(Variable expr) => Environment.Get(expr.Name);
 
+  public object? VisitAssignExpr(Assign expr)
+  {
+    object? value = Evaluate(expr.Value);
+    Environment.Assign(expr.Name, value);
+
+    return value;
+  }
+
   public void VisitExprStmt(ExprStmt stmt)
   {
     Evaluate(stmt.Expression);

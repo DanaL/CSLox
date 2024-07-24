@@ -8,6 +8,7 @@ public interface IExprVisitor<T>
 	public T VisitUnaryExpr(Unary expr);  
   public T VisitTernaryExpr(Ternary expr);
 	public T VisitVariableExpr(Variable expr);
+	public T VisitAssignExpr(Assign expr);
 }
 
 public abstract class Expr 
@@ -22,6 +23,14 @@ public class Ternary(Expr test, Expr pass, Expr fail) : Expr
   public Expr Fail { get; set; } = fail;
 
   public override T Accept<T>(IExprVisitor<T> visitor) => visitor.VisitTernaryExpr(this);
+}
+
+public class Assign(Token name, Expr value) : Expr
+{
+	public Token Name { get; set; } = name;
+	public Expr Value { get; set; } = value;
+
+  public override T Accept<T>(IExprVisitor<T> visitor) => visitor.VisitAssignExpr(this);
 }
 
 public class Binary(Expr left, Token op, Expr right) : Expr

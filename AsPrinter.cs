@@ -28,6 +28,7 @@ class AstPrinter : IExprVisitor<string>
   public string VisitLiteralExpr(Literal expr) => expr.Value.ToString() ?? "";
   public string VisitUnaryExpr(Unary expr) => Parenthesize(expr.Op.Lexeme, expr.Right);
   public string VisitTernaryExpr(Ternary expr) => Parenthesize("tern", expr.Test, expr.Pass, expr.Fail);
+  public string VisitAssignExpr(Assign expr) => throw new NotImplementedException();
 
   public string VisitExprStmt(ExprStmt stmt)
   {

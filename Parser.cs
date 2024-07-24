@@ -151,7 +151,28 @@ class Parser(List<Token> tokens)
     return new ExprStmt(expr);
   }
 
-  Expr Expression() => Ternary();
+  Expr Expression() => Assignment();
+
+  Expr Assignment()
+  {
+    Expr expr = Ternary();
+
+    if (Match(TokenType.EQUAL))
+    {
+      Token equals = Previous();
+      Expr value = Assignment();
+
+      if (expr is Variable var)
+      {
+        Token name = var.Name;
+        return new Assign(name, value);
+      }
+
+      Error(equals, "Invalid assignment target");
+    }
+
+    return expr;
+  }
 
   Expr Ternary()
   {
