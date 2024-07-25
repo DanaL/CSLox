@@ -149,7 +149,8 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
 
   public void VisitExprStmt(ExprStmt stmt)
   {
-    Evaluate(stmt.Expression);
+    var result = Evaluate(stmt.Expression);    
+    Console.WriteLine(Stringify(result));    
   }
 
   public void VisitPrintStmt(PrintStmt stmt)
