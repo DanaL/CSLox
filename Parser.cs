@@ -116,6 +116,8 @@ class Parser(List<Token> tokens)
   {
     if (Match(TokenType.PRINT))
       return PrintStatement();
+    if (Match(TokenType.LEFT_BRACE))
+      return new BlockStmt(Block());
 
     return ExpressionStatement();
   }
@@ -149,6 +151,22 @@ class Parser(List<Token> tokens)
     Consume(TokenType.SEMICOLON, "Expected ';' after value.");
 
     return new ExprStmt(expr);
+  }
+
+  List<Stmt> Block()
+  {
+    List<Stmt> statements = [];
+
+    while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd()) 
+    {
+      var stmt = Declaration();
+      if (stmt is not null)
+        statements.Add(stmt);
+    }
+
+    Consume(TokenType.RIGHT_BRACE, "Expected '}' after block.");
+
+    return statements;
   }
 
   Expr Expression() => Assignment();

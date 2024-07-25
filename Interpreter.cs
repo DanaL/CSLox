@@ -174,6 +174,30 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
     stmt.Accept(this);
   }
 
+  void ExecuteBlock(List<Stmt> statements, LoxEnvironment env)
+  {
+    LoxEnvironment previous = Environment;
+
+    try
+    {
+      Environment = env;
+
+      foreach (var stmt in statements)
+      {
+        Execute(stmt);
+      }
+    }
+    finally
+    {
+      Environment = previous;
+    }
+  }
+
+  public void VisitBlockStmt(BlockStmt stmt)
+  {
+    ExecuteBlock(stmt.Statements, new LoxEnvironment(Environment));
+  }
+
   public void Interpret(List<Stmt> statements)
   {
     try

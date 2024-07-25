@@ -5,6 +5,7 @@ public interface IStmtVisitor
   public void VisitExprStmt(ExprStmt stmt);
   public void VisitPrintStmt(PrintStmt stmt);
 	public void VisitVarStmt(VarStmt stmt);
+	public void VisitBlockStmt(BlockStmt stmt);
 }
 
 public abstract class Stmt 
@@ -41,5 +42,15 @@ public class VarStmt(Token name, Expr? expr) : Stmt
   {
     visitor.VisitVarStmt(this);
   }
+}
+
+public class BlockStmt(List<Stmt> statements) : Stmt
+{
+	public List<Stmt> Statements = statements;
+
+	public override void Accept(IStmtVisitor visitor)
+	{
+		visitor.VisitBlockStmt(this);
+	}
 }
 
