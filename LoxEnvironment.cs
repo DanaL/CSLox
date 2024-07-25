@@ -1,19 +1,28 @@
 ﻿
 namespace CSLox
 {
-  internal class LoxEnvironment
+  class EnvVariable(bool assigned, object? val)
+  {
+    public bool Assigned { get; set; } = assigned;
+    public object? Value { get; set; } = val;
+  }
+
+  class LoxEnvironment
   {
     LoxEnvironment? EnclosingScope;
-    Dictionary<string, object?> Values = [];
+    Dictionary<string, EnvVariable> Values = [];
 
     public LoxEnvironment() => EnclosingScope = null;
     public LoxEnvironment(LoxEnvironment enclosing) => EnclosingScope = enclosing;
     
     public object? Get(Token name)
     {
-      if (Values.TryGetValue(name.Lexeme, out object? value))
+      if (Values.TryGetValue(name.Lexeme, out var envVar))
       {
-        return value;
+        if (envVar.Assigned)
+          return envVar.Value;
+
+        throw new RuntimeError(name, $"Use of assigned var '{name.Lexeme}'.");
       }
 
       if (EnclosingScope is not null)
@@ -28,7 +37,7 @@ namespace CSLox
     {
       if (Values.ContainsKey(name.Lexeme))
       {
-        Values[name.Lexeme] = value;
+        Values[name.Lexeme] = new EnvVariable(true, value);
         return;
       }
 
@@ -43,7 +52,12 @@ namespace CSLox
 
     public void Define(string name, object? value)
     {
-      Values.Add(name, value);
+      Values.Add(name, new EnvVariable(true, value));
+    }
+
+    public void Define(string name)
+    {
+      Values.Add(name, new EnvVariable(false, null));
     }
   }
 }

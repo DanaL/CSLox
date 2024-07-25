@@ -167,7 +167,10 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
       value = Evaluate(stmt.Initializer);
     }
 
-    Environment.Define(stmt.Name.Lexeme, value);
+    if (stmt.Initializer is null)
+      Environment.Define(stmt.Name.Lexeme);
+    else
+      Environment.Define(stmt.Name.Lexeme, value);
   }
 
   void Execute(Stmt stmt)
