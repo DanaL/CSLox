@@ -2,6 +2,8 @@ namespace CSLox;
 
 class Interpreter : IExprVisitor<object?>, IStmtVisitor
 {
+  public bool EchoExpressionResult { get; set; } = false;
+
   LoxEnvironment Environment { get; set; } = new LoxEnvironment();
 
   object? Evaluate(Expr expr) => expr.Accept(this);
@@ -167,8 +169,9 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
 
   public void VisitExprStmt(ExprStmt stmt)
   {
-    var result = Evaluate(stmt.Expression);    
-    Console.WriteLine(Stringify(result));    
+    var result = Evaluate(stmt.Expression);
+    if (EchoExpressionResult)
+      Console.WriteLine(Stringify(result));    
   }
 
   public void VisitPrintStmt(PrintStmt stmt)
@@ -229,6 +232,14 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
     else if (stmt.ElseBranch is not null)
     {
       Execute(stmt.ElseBranch);
+    }
+  }
+  
+  public void VisitWhileStmt(WhileStmt stmt)
+  {
+    while (IsTruthy(Evaluate(stmt.Condition)))
+    {
+      Execute(stmt.Body);
     }
   }
 

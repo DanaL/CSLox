@@ -7,6 +7,7 @@ public interface IStmtVisitor
 	public void VisitVarStmt(VarStmt stmt);
 	public void VisitBlockStmt(BlockStmt stmt);
 	public void VisitIfStmt(IfStatement stmt);
+  public void VisitWhileStmt(WhileStmt stmt);
 }
 
 public abstract class Stmt 
@@ -65,4 +66,15 @@ public class IfStatement(Expr condition, Stmt thenBranch, Stmt? elseBranch) : St
 	{
 		visitor.VisitIfStmt(this);
 	}
+}
+
+public class WhileStmt(Expr condition, Stmt body) : Stmt
+{
+  public Expr Condition { get; set; } = condition;
+  public Stmt Body { get; set; } = body;
+
+  public override void Accept (IStmtVisitor visitor)
+  {
+    visitor.VisitWhileStmt(this);
+  }
 }

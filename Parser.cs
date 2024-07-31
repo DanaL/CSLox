@@ -120,6 +120,8 @@ class Parser(List<Token> tokens)
       return IfStatement();
     if (Match(TokenType.PRINT))
       return PrintStatement();
+    if (Match(TokenType.WHILE))
+      return WhileStatement();
     if (Match(TokenType.LEFT_BRACE))
       return new BlockStmt(Block());
 
@@ -171,6 +173,16 @@ class Parser(List<Token> tokens)
     Consume(TokenType.SEMICOLON, "Expected ';' after value.");
 
     return new ExprStmt(expr);
+  }
+
+  Stmt WhileStatement()
+  {
+    Consume(TokenType.LEFT_PAREN, "Expected '(' after 'while'.");
+    Expr condition = Expression();
+    Consume(TokenType.RIGHT_PAREN, "Expected ')' after condition.");
+    Stmt body = Statement();
+
+    return new WhileStmt(condition, body);
   }
 
   List<Stmt> Block()
