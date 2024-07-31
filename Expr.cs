@@ -9,6 +9,7 @@ public interface IExprVisitor<T>
   public T VisitTernaryExpr(Ternary expr);
 	public T VisitVariableExpr(Variable expr);
 	public T VisitAssignExpr(Assign expr);
+	public T VisitLogicalExpr(Logical expr);
 }
 
 public abstract class Expr 
@@ -71,3 +72,11 @@ public class Variable(Token name) : Expr
 	public override T Accept<T>(IExprVisitor <T> visitor) => visitor.VisitVariableExpr(this);	
 }
 
+public class Logical(Expr left, Token op, Expr right) : Expr
+{
+  public Expr Left = left;
+  public Token Op = op;
+  public Expr Right = right;
+
+	public override T Accept<T>(IExprVisitor<T> visitor) => visitor.VisitLogicalExpr(this);
+}

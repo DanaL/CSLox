@@ -1,3 +1,5 @@
+using Microsoft.VisualBasic;
+
 namespace CSLox;
 
 class ParserError : Exception {}
@@ -114,12 +116,30 @@ class Parser(List<Token> tokens)
 
   Stmt Statement()
   {
+    if (Match(TokenType.IF))
+      return IfStatement();
     if (Match(TokenType.PRINT))
       return PrintStatement();
     if (Match(TokenType.LEFT_BRACE))
       return new BlockStmt(Block());
 
     return ExpressionStatement();
+  }
+
+  Stmt IfStatement()
+  {
+    Consume(TokenType.LEFT_PAREN, "Expected '(' after 'if' statement.");
+    Expr condition = Expression();
+    Consume(TokenType.RIGHT_PAREN, "Expected ')' after 'if' condition.");
+
+    Stmt thenBranch = Statement();
+    Stmt? elseBranch = null;
+    if (Match(TokenType.ELSE))
+    {
+      elseBranch = Statement();
+    }
+
+    return new IfStatement(condition, thenBranch, elseBranch);
   }
 
   Stmt PrintStatement()
@@ -194,7 +214,7 @@ class Parser(List<Token> tokens)
 
   Expr Ternary()
   {
-    Expr expr = Equality();
+    Expr expr = Or();
 
     while (Match(TokenType.QUESTION_MARK))
     {
@@ -202,6 +222,34 @@ class Parser(List<Token> tokens)
       Consume(TokenType.COLON, "Expected ':' in ternary expression.");
       Expr fail = Expression();
       expr = new Ternary(expr, pass, fail);
+    }
+
+    return expr;
+  }
+
+  Expr Or()
+  {
+    Expr expr = And();
+
+    while (Match(TokenType.OR))
+    {
+      Token op = Previous();
+      Expr right = And();
+      expr = new Logical(expr, op, right);
+    }
+
+    return expr;
+  }
+
+  Expr And()
+  {
+    Expr expr = Equality();
+
+    while (Match(TokenType.AND))
+    {
+      Token op = Previous();
+      Expr right = Equality();
+      expr = new Logical(expr, op, right);
     }
 
     return expr;

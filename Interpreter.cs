@@ -147,6 +147,24 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
     return value;
   }
 
+  public object? VisitLogicalExpr(Logical expr)
+  {
+    object? left = Evaluate(expr.Left);
+
+    if (expr.Op.Type == TokenType.OR)
+    {
+      if (IsTruthy(left))
+        return left;
+    }
+    else
+    {
+      if (!IsTruthy(left))
+        return left;
+    }
+
+    return Evaluate(expr.Right);
+  }
+
   public void VisitExprStmt(ExprStmt stmt)
   {
     var result = Evaluate(stmt.Expression);    
@@ -200,6 +218,18 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
   public void VisitBlockStmt(BlockStmt stmt)
   {
     ExecuteBlock(stmt.Statements, new LoxEnvironment(Environment));
+  }
+
+  public void VisitIfStmt(IfStatement stmt)
+  {
+    if (IsTruthy(Evaluate(stmt.Condition)))
+    {
+      Execute(stmt.ThenBranch);
+    }
+    else if (stmt.ElseBranch is not null)
+    {
+      Execute(stmt.ElseBranch);
+    }
   }
 
   public void Interpret(List<Stmt> statements)
