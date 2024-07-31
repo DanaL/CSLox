@@ -15,11 +15,14 @@ class Lox
     if (hadRunetimeError)
       Environment.Exit(70);
 
+    interpreter.EchoExpressionResult = false;
     Run(txt);
   }
 
   static void RunPrompt()
   {
+    interpreter.EchoExpressionResult = true;
+    
     while (true)
     {
       hadError = false;
