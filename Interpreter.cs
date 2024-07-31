@@ -202,6 +202,14 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
     ExecuteBlock(stmt.Statements, new LoxEnvironment(Environment));
   }
 
+  public void VisitWhileStmt(WhileStmt stmt)
+  {
+    while (IsTruthy(Evaluate(stmt.Condition)))
+    {
+      Execute(stmt.Body);
+    }
+  }
+
   public void Interpret(List<Stmt> statements)
   {
     try

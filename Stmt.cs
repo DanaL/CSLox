@@ -6,6 +6,7 @@ public interface IStmtVisitor
   public void VisitPrintStmt(PrintStmt stmt);
 	public void VisitVarStmt(VarStmt stmt);
 	public void VisitBlockStmt(BlockStmt stmt);
+  public void VisitWhileStmt(WhileStmt stmt);
 }
 
 public abstract class Stmt 
@@ -54,3 +55,13 @@ public class BlockStmt(List<Stmt> statements) : Stmt
 	}
 }
 
+public class WhileStmt(Expr condition, Stmt body) : Stmt
+{
+  public Expr Condition { get; set; } = condition;
+  public Stmt Body { get; set; } = body;
+
+  public override void Accept (IStmtVisitor visitor)
+  {
+    visitor.VisitWhileStmt(this);
+  }
+}
