@@ -116,6 +116,8 @@ class Parser(List<Token> tokens)
 
   Stmt Statement()
   {
+    if (Match(TokenType.FOR))
+      return ForStatement();
     if (Match(TokenType.IF))
       return IfStatement();
     if (Match(TokenType.PRINT))
@@ -126,6 +128,45 @@ class Parser(List<Token> tokens)
       return new BlockStmt(Block());
 
     return ExpressionStatement();
+  }
+
+  Stmt ForStatement()
+  {
+    Consume(TokenType.LEFT_PAREN, "Expected '(' after 'for'.");
+
+    Stmt? initializer;
+    if (Match(TokenType.SEMICOLON))
+      initializer = null;
+    else if (Match(TokenType.VAR))
+      initializer = VarDeclaration();
+    else
+      initializer = ExpressionStatement();
+
+    Expr? condition = null;
+    if (!Check(TokenType.SEMICOLON))
+      condition = Expression();
+    Consume(TokenType.SEMICOLON, "Expected ';' after loop condition.");
+
+    Expr? increment = null;
+    if (!Check(TokenType.RIGHT_PAREN))
+      increment = Expression();
+    Consume(TokenType.RIGHT_PAREN, "Expected ')' after for clause.");
+
+    Stmt body = Statement();
+
+    if (increment is not null)
+    {
+      body = new BlockStmt([body, new ExprStmt(increment)]);
+    }
+
+    condition ??= new Literal(true);
+    
+    body = new WhileStmt(condition, body);
+
+    if (initializer is not null)
+      body = new BlockStmt([initializer, body]);
+
+    return body;
   }
 
   Stmt IfStatement()
