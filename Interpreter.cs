@@ -1,12 +1,31 @@
 namespace CSLox;
 
+class RuntimeError(Token? token, string message) : Exception(message)
+{
+  public Token? Token { get; set; } = token;
+}
+
+class Return(object? val) : Exception
+{
+  public object? Value { get; set; } = val;
+}
+
 class Interpreter : IExprVisitor<object?>, IStmtVisitor
 {
   public bool EchoExpressionResult { get; set; } = false;
 
-  LoxEnvironment Environment { get; set; } = new LoxEnvironment();
+  LoxEnvironment Globals = new LoxEnvironment();
+  LoxEnvironment Environment { get; set; }
+
+  public Interpreter()
+  {
+    Globals.Define("clock", new ClockFunction());
+    Environment = Globals;
+  }
 
   object? Evaluate(Expr expr) => expr.Accept(this);
+  
+  public LoxEnvironment GlobalEnvironment() => new LoxEnvironment(Globals);
   
   static string Stringify(object? obj)
   {
@@ -167,6 +186,30 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
     return Evaluate(expr.Right);
   }
 
+  public object? VisitCallExpr(Call expr)
+  {
+    object? callee = Evaluate(expr.Callee);
+
+    List<object> args = [];
+    foreach (var argument in expr.Arguments)
+    {
+      if (Evaluate(argument) is object a)
+        args.Add(a);
+    }
+
+    if (callee is not ICallable function)
+    {
+      throw new RuntimeError(expr.Paren, "Can only call functions and classes.");
+    }
+
+    if (args.Count != function.Arity())
+    {
+      throw new RuntimeError(expr.Paren, $"Expected {function.Arity()} arguments but got {args.Count}.");
+    }
+
+    return function.Call(this, args);
+  }
+
   public void VisitExprStmt(ExprStmt stmt)
   {
     var result = Evaluate(stmt.Expression);
@@ -174,10 +217,25 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
       Console.WriteLine(Stringify(result));    
   }
 
+  public void VisitFunction(Function stmt)
+  {
+    LoxFunction function = new(stmt);
+    Environment.Define(stmt.Name.Lexeme, function);
+  }
+
   public void VisitPrintStmt(PrintStmt stmt)
   {
     object? result = Evaluate(stmt.Expression);
     Console.WriteLine(Stringify(result));
+  }
+
+  public void VisitReturnStmt(ReturnStmt stmt)
+  {
+    object? val = null;
+    if (stmt.Value is not null)
+      val = Evaluate(stmt.Value);
+
+    throw new Return(val);
   }
 
   public void VisitVarStmt(VarStmt stmt)
@@ -199,7 +257,7 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
     stmt.Accept(this);
   }
 
-  void ExecuteBlock(List<Stmt> statements, LoxEnvironment env)
+  public void ExecuteBlock(List<Stmt> statements, LoxEnvironment env)
   {
     LoxEnvironment previous = Environment;
 

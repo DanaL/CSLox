@@ -1,11 +1,11 @@
-using Microsoft.VisualBasic;
-
 namespace CSLox;
 
 class ParserError : Exception {}
 
 class Parser(List<Token> tokens)
 {
+  static readonly int MAX_ARGUMENTS = 255;
+
   List<Token> Tokens { get; set ;} = tokens;
   int Current = 0;
 
@@ -102,6 +102,9 @@ class Parser(List<Token> tokens)
   {
     try
     {
+      if (Match(TokenType.FUN))
+        return FunDeclaration("function");
+
       if (Match(TokenType.VAR))
         return VarDeclaration();
 
@@ -122,6 +125,8 @@ class Parser(List<Token> tokens)
       return IfStatement();
     if (Match(TokenType.PRINT))
       return PrintStatement();
+    if (Match(TokenType.RETURN))
+      return ReturnStatement();
     if (Match(TokenType.WHILE))
       return WhileStatement();
     if (Match(TokenType.LEFT_BRACE))
@@ -193,6 +198,20 @@ class Parser(List<Token> tokens)
     return new PrintStmt(value);
   }
 
+  Stmt ReturnStatement()
+  {
+    Token keyword = Previous();
+    Expr? val = null;
+    if (!Check(TokenType.SEMICOLON))
+    {
+      val = Expression();
+    }
+
+    Consume(TokenType.SEMICOLON, "Expected ';' after return value.");
+
+    return new ReturnStmt(keyword, val);
+  }
+
   Stmt VarDeclaration()
   {
     Token name = Consume(TokenType.IDENTIFIER, "Expect variable name.");
@@ -206,6 +225,30 @@ class Parser(List<Token> tokens)
     Consume(TokenType.SEMICOLON, "Expected ';' after variable declaration");
 
     return new VarStmt(name, initializer);
+  }
+
+  Stmt FunDeclaration(string kind)
+  {
+    Token name = Consume(TokenType.IDENTIFIER, $"Execpted {kind} name.");
+    Consume(TokenType.LEFT_PAREN, $"Expected '(' after {kind} name.");
+    List<Token> parameters = [];
+    if (!Check(TokenType.RIGHT_PAREN))
+    {
+      do
+      {
+        if (parameters.Count >= MAX_ARGUMENTS)
+          Error(Peek(), $"Can't have more than {MAX_ARGUMENTS} parameters.");
+
+        parameters.Add(Consume(TokenType.IDENTIFIER, "Expected parameter name"));
+      }
+      while (Match(TokenType.COMMA));
+    }
+    Consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.");
+
+    Consume(TokenType.LEFT_BRACE, $"Expected '{{' before {kind} body.");
+    List<Stmt> body = Block();
+
+    return new Function(name, parameters, body);
   }
 
   Stmt ExpressionStatement()
@@ -375,15 +418,52 @@ class Parser(List<Token> tokens)
       return new Unary(op, right);
     }
 
-    return Primary();
+    return Call();
+  }
+
+  Expr FinishCall(Expr callee)
+  {
+    List<Expr> arguments = [];
+
+    if (!Check(TokenType.RIGHT_PAREN))
+    {
+      do
+      {
+        if (arguments.Count > MAX_ARGUMENTS)
+          Error(Peek(), $"Cannot have more than {MAX_ARGUMENTS} arguments.");
+        arguments.Add(Expression());
+      }
+      while (Match(TokenType.COMMA));
+    }
+
+    Token paren = Consume(TokenType.RIGHT_PAREN, "Expected ')' after arguments.");
+
+    return new Call(callee, paren, arguments);
+  }
+
+  Expr Call()
+  {
+    Expr expr = Primary();
+
+    while (true)
+    {
+      if (Match(TokenType.LEFT_PAREN))
+        expr = FinishCall(expr);
+      else
+        break;
+    }
+
+    return expr;
   }
 
   Expr Primary()
   {
     if (Match(TokenType.FALSE))
       return new Literal(false);
+    
     if (Match(TokenType.TRUE))
       return new Literal(true);
+    
     if (Match(TokenType.NIL))
       return new Literal(null);
 

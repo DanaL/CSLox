@@ -10,6 +10,7 @@ public interface IExprVisitor<T>
 	public T VisitVariableExpr(Variable expr);
 	public T VisitAssignExpr(Assign expr);
 	public T VisitLogicalExpr(Logical expr);
+	public T VisitCallExpr(Call expr);
 }
 
 public abstract class Expr 
@@ -79,4 +80,13 @@ public class Logical(Expr left, Token op, Expr right) : Expr
   public Expr Right = right;
 
 	public override T Accept<T>(IExprVisitor<T> visitor) => visitor.VisitLogicalExpr(this);
+}
+
+public class Call(Expr callee, Token paren, List<Expr> arguments) : Expr
+{
+	public Expr Callee = callee;
+	public Token Paren = paren;
+	public List<Expr> Arguments = arguments;
+
+	public override T Accept<T>(IExprVisitor<T> visitor) => visitor.VisitCallExpr(this);
 }
