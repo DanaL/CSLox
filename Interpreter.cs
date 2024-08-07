@@ -25,8 +25,6 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
 
   object? Evaluate(Expr expr) => expr.Accept(this);
   
-  public LoxEnvironment GlobalEnvironment() => new LoxEnvironment(Globals);
-  
   static string Stringify(object? obj)
   {
     if (obj is null)
@@ -219,7 +217,7 @@ class Interpreter : IExprVisitor<object?>, IStmtVisitor
 
   public void VisitFunction(Function stmt)
   {
-    LoxFunction function = new(stmt);
+    LoxFunction function = new(stmt, Environment);
     Environment.Define(stmt.Name.Lexeme, function);
   }
 

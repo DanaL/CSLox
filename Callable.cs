@@ -17,15 +17,16 @@ class ClockFunction : ICallable
   }
 }
 
-class LoxFunction(Function declaration) : ICallable
+class LoxFunction(Function declaration, LoxEnvironment closure) : ICallable
 {
   Function Declaration { get; set; } = declaration;
+  LoxEnvironment Closure { get; set; } = closure;
 
   public int Arity() => Declaration.Params.Count;
 
   public object? Call(Interpreter interpreter, List<object> arguments)
   {
-    var env = interpreter.GlobalEnvironment();
+    var env = new LoxEnvironment(Closure);
 
     for (int i = 0; i < Declaration.Params.Count; i++)
     {
